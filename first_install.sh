@@ -1,83 +1,91 @@
 #!/bin/bash
 
-# Funktion zum Anzeigen von Schritten mit Fortschrittspunkten
-print_step() {
-    echo -e "\n\e[1;34m[Schritt $1/$TOTAL_STEPS]:\e[0m $2"
+# Farben für die Ausgabe
+green='\033[0;32m'
+yellow='\033[1;33m'
+red='\033[0;31m'
+nc='\033[0m' # Kein Farbcode
+
+# Funktion zum Ausgeben eines Schritts
+show_step() {
+    echo -e "${yellow}[$1/$2] $3...${nc}"
 }
 
-# Funktion zum Überprüfen, ob ein Befehl erfolgreich war
-check_success() {
-    if [ $? -ne 0 ]; then
-        echo -e "\e[1;31mFehler beim Ausführen von: $1\e[0m"
-        exit 1
-    fi
+# Funktion zum Anzeigen, dass ein Schritt abgeschlossen ist
+step_done() {
+    echo -e "${green}✓ $1 abgeschlossen${nc}"
 }
 
-# Gesamtzahl der Schritte
-TOTAL_STEPS=12
-CURRENT_STEP=0
+# Gesamtschritte für das Skript festlegen
+total_steps=15
+current_step=1
 
-# Erster Schritt: Arbeitsverzeichnis setzen
-CURRENT_STEP=$((CURRENT_STEP + 1))
-print_step $CURRENT_STEP "Setze das Arbeitsverzeichnis auf das Verzeichnis, in dem das Skript liegt"
+# Setze das Arbeitsverzeichnis auf das Verzeichnis, in dem das Skript liegt
+show_step $current_step $total_steps "Setze Arbeitsverzeichnis"
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 cd "$SCRIPT_DIR" || exit
+step_done "Arbeitsverzeichnis gesetzt"
+((current_step++))
 
-# Zweiter Schritt: Überprüfen, ob das Skript als Root ausgeführt wird
-CURRENT_STEP=$((CURRENT_STEP + 1))
-print_step $CURRENT_STEP "Überprüfen, ob das Skript als Root ausgeführt wird"
+# Überprüfen, ob das Skript mit Root-Rechten ausgeführt wird
+show_step $current_step $total_steps "Überprüfen von Root-Rechten"
 if [ "$EUID" -ne 0 ]; then
-    echo -e "\e[1;31mBitte führe das Skript mit Root-Rechten aus.\e[0m"
-    exit 1
+  echo -e "${red}Bitte führe das Skript mit Root-Rechten aus.${nc}"
+  exit 1
 fi
+step_done "Root-Rechte überprüft"
+((current_step++))
 
-# Dritter Schritt: Überprüfen, ob Docker installiert ist
-CURRENT_STEP=$((CURRENT_STEP + 1))
-print_step $CURRENT_STEP "Überprüfen, ob Docker installiert ist"
+# Überprüfen, ob Docker installiert ist
+show_step $current_step $total_steps "Überprüfen von Docker"
 if ! command -v docker &> /dev/null; then
-    echo -e "\e[1;31mDocker ist nicht installiert. Bitte folge der Anleitung unter: https://docs.docker.com/engine/install/\e[0m"
-    exit 1
+  echo -e "${red}Docker ist nicht installiert. Bitte folge der Anleitung unter: https://docs.docker.com/engine/install/${nc}"
+  exit 1
 fi
+step_done "Docker installiert"
+((current_step++))
 
-# Vierter Schritt: Überprüfen, ob Docker Compose installiert ist
-CURRENT_STEP=$((CURRENT_STEP + 1))
-print_step $CURRENT_STEP "Überprüfen, ob Docker Compose installiert ist"
+# Überprüfen, ob Docker Compose installiert ist
+show_step $current_step $total_steps "Überprüfen von Docker Compose"
 if ! command -v docker compose &> /dev/null; then
-    echo -e "\e[1;31mDocker Compose ist nicht installiert. Bitte folge der Anleitung unter: https://docs.docker.com/engine/install/\e[0m"
-    exit 1
+  echo -e "${red}Docker Compose ist nicht installiert. Bitte folge der Anleitung unter: https://docs.docker.com/engine/install/${nc}"
+  exit 1
 fi
+step_done "Docker Compose installiert"
+((current_step++))
 
-# Fünfter Schritt: apache2-utils (htpasswd) installieren, falls nicht vorhanden
-CURRENT_STEP=$((CURRENT_STEP + 1))
-print_step $CURRENT_STEP "Installiere apache2-utils (htpasswd), falls nicht vorhanden"
+# Installiere apache2-utils, falls nicht vorhanden
+show_step $current_step $total_steps "Installiere apache2-utils, falls erforderlich"
 command -v htpasswd >/dev/null 2>&1 || { sudo apt update && sudo apt install -y apache2-utils; }
-check_success "apache2-utils Installation"
+step_done "apache2-utils installiert"
+((current_step++))
 
-# Sechster Schritt: Überprüfen, ob Container bereits laufen
-CURRENT_STEP=$((CURRENT_STEP + 1))
-print_step $CURRENT_STEP "Überprüfen, ob Container bereits laufen"
+# Überprüfen, ob Container laufen
+show_step $current_step $total_steps "Überprüfen von laufenden Containern"
 containers=("crowdsec" "socket-proxy" "traefik" "traefik_crowdsec_bouncer")
 for container in "${containers[@]}"; do
   if [ "$(docker ps -q -f name=$container)" ]; then
-    echo -e "\e[1;31mDer Docker-Container '$container' läuft bereits. Das Skript wird abgebrochen.\e[0m"
+    echo -e "${red}Der Docker-Container '$container' läuft bereits. Das Skript wird abgebrochen.${nc}"
     exit 1
   fi
 done
+step_done "Keine laufenden Container gefunden"
+((current_step++))
 
-# Siebter Schritt: Netzwerke überprüfen
-CURRENT_STEP=$((CURRENT_STEP + 1))
-print_step $CURRENT_STEP "Überprüfen, ob Netzwerke bereits existieren"
+# Netzwerke überprüfen
+show_step $current_step $total_steps "Überprüfen von Netzwerken"
 networks=("proxy" "socket_proxy" "crowdsec")
 for network in "${networks[@]}"; do
   if [ "$(docker network ls -q -f name=^${network}$)" ]; then
-    echo -e "\e[1;31mDas Docker-Netzwerk '$network' existiert bereits. Das Skript wird abgebrochen.\e[0m"
+    echo -e "${red}Das Docker-Netzwerk '$network' existiert bereits. Das Skript wird abgebrochen.${nc}"
     exit 1
   fi
 done
+step_done "Keine bestehenden Netzwerke gefunden"
+((current_step++))
 
-# Achter Schritt: Dateien kopieren, wenn die jeweilige .sample Datei vorhanden ist
-CURRENT_STEP=$((CURRENT_STEP + 1))
-print_step $CURRENT_STEP "Kopiere Dateien, wenn die jeweilige .sample Datei vorhanden ist"
+# Dateien kopieren
+show_step $current_step $total_steps "Kopiere erforderliche Dateien"
 files_to_copy=(
   ".env.sample .env"
   "data/crowdsec/.env.sample data/crowdsec/.env"
@@ -92,25 +100,59 @@ files_to_copy=(
   "data/traefik/dynamic_conf/tls.yml.sample data/traefik/dynamic_conf/tls.yml"
   "data/traefik-crowdsec-bouncer/.env.sample data/traefik-crowdsec-bouncer/.env"
 )
+
+# Dateien kopieren oder das Skript beenden, wenn eine .sample Datei fehlt
 for file_pair in "${files_to_copy[@]}"; do
   src=$(echo $file_pair | awk '{print $1}')
   dst=$(echo $file_pair | awk '{print $2}')
-  # Absoluter Pfad der Dateien
+
   src_path="${SCRIPT_DIR}/${src}"
   dst_path="${SCRIPT_DIR}/${dst}"
+
   if [ -f "$src_path" ]; then
     cp "$src_path" "$dst_path"
-    echo -e "\e[1;32mKopiere ${src_path} nach ${dst_path}\e[0m"
+    echo "Kopiere ${src_path} nach ${dst_path}"
   else
-    echo -e "\e[1;31mDie Datei ${src_path} existiert nicht. Das Skript wird abgebrochen.\e[0m"
+    echo -e "${red}Die Datei ${src_path} existiert nicht. Das Skript wird abgebrochen.${nc}"
     exit 1
   fi
 done
+step_done "Dateien kopiert"
+((current_step++))
 
-# Neunter Schritt: Benutzer nach Domain und E-Mail-Adresse fragen
-CURRENT_STEP=$((CURRENT_STEP + 1))
-print_step $CURRENT_STEP "Benutzer nach der Wunsch-Domain und E-Mail-Adresse fragen"
-# Funktion zur Überprüfung der E-Mail-Adresse
+# Benutzerabfrage mit y/n und Standardwert y
+show_step $current_step $total_steps "Benutzerabfrage: CrowdSec-Repository"
+read -p "Hast du bereits das CrowdSec-Repository in deinen Paketquellen (dist)? [Y/n]: " has_crowdsec_repo
+has_crowdsec_repo=${has_crowdsec_repo:-y}  # Standardwert y
+has_crowdsec_repo=$(echo "$has_crowdsec_repo" | tr '[:upper:]' '[:lower:]')
+
+if [ "$has_crowdsec_repo" != "y" ]; then
+  echo "CrowdSec-Repository wird installiert..."
+  curl -s https://install.crowdsec.net | sudo sh
+  echo "CrowdSec-Repository wurde installiert."
+else
+  echo "CrowdSec-Repository ist bereits vorhanden. Installation wird übersprungen."
+fi
+step_done "CrowdSec-Repository überprüft"
+((current_step++))
+
+# Installiere openssl, falls nicht vorhanden
+show_step $current_step $total_steps "Überprüfen von OpenSSL"
+command -v openssl >/dev/null 2>&1 || { sudo apt update && sudo apt install -y openssl; }
+step_done "OpenSSL überprüft"
+((current_step++))
+
+# Bouncer-Passwörter generieren
+show_step $current_step $total_steps "Generiere Bouncer-Passwörter"
+BOUNCER_PASSWORD=$(openssl rand -base64 48 | tr -dc 'a-zA-Z0-9!@#$%^&*()-_=+[]{}<>?|')
+echo "BOUNCER_KEY_TRAEFIK=\"$BOUNCER_PASSWORD\"" >> ${SCRIPT_DIR}/.env
+BOUNCER_PASSWORD=$(openssl rand -base64 48 | tr -dc 'a-zA-Z0-9!@#$%^&*()-_=+[]{}<>?|')
+echo "BOUNCER_KEY_FIREWALL=\"$BOUNCER_PASSWORD\"" >> ${SCRIPT_DIR}/.env
+step_done "Bouncer-Passwörter generiert"
+((current_step++))
+
+# E-Mail-Adresse für SSL-Zertifikate
+show_step $current_step $total_steps "Frage nach E-Mail-Adresse für SSL-Zertifikate"
 validate_email() {
   local email_regex="^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
   if [[ $1 =~ $email_regex ]]; then
@@ -123,36 +165,84 @@ validate_email() {
 while true; do
   read -p "Bitte gib deine E-Mail-Adresse für die SSL-Zertifikate ein: " ssl_email
   if validate_email "$ssl_email"; then
-    echo -e "\e[1;32mGültige E-Mail-Adresse eingegeben: $ssl_email\e[0m"
+    echo "Gültige E-Mail-Adresse eingegeben: $ssl_email"
     break
   else
-    echo -e "\e[1;31mUngültige E-Mail-Adresse. Bitte versuche es erneut.\e[0m"
+    echo "Ungültige E-Mail-Adresse. Bitte versuche es erneut."
   fi
 done
+traefik_config_file="data/traefik/traefik.yml"
+if [ ! -f "$traefik_config_file" ]; then
+  echo -e "${red}Die Datei $traefik_config_file existiert nicht. Das Skript wird abgebrochen.${nc}"
+  exit 1
+fi
+sed -i "s/email: \".*\"/email: \"$ssl_email\"/g" "$traefik_config_file"
+step_done "SSL-Zertifikat E-Mail-Adresse gesetzt"
+((current_step++))
 
+# Wunsch-Domain für Traefik-Dashboard
+show_step $current_step $total_steps "Frage nach Wunsch-Domain für Traefik-Dashboard"
+env_file="${SCRIPT_DIR}/.env"
+if [ ! -f "$env_file" ]; then
+  echo -e "${red}Die Datei $env_file existiert nicht. Das Skript wird abgebrochen.${nc}"
+  exit 1
+fi
 read -p "Bitte gib die Wunsch-Domain für dein Traefik-Dashboard ein: " dashboard_domain
+sed -i "s/HOST(`traefik.yourdomain.com`)/HOST(`$dashboard_domain`)/g" "$env_file"
+step_done "Traefik-Domain gesetzt"
+((current_step++))
 
-# Zehnter Schritt: Konfiguration von CrowdSec und der Firewall anpassen
-CURRENT_STEP=$((CURRENT_STEP + 1))
-print_step $CURRENT_STEP "Konfiguration von CrowdSec und der Firewall anpassen"
-# Benutzer für Dashboard setzen
+# CrowdSec und Firewall-Konfiguration
+show_step $current_step $total_steps "CrowdSec einmalig starten und herunterfahren"
+docker compose up crowdsec -d && docker compose down
+step_done "CrowdSec gestartet und heruntergefahren"
+((current_step++))
+
+# Firewall-Auswahl
+show_step $current_step $total_steps "Firewall-Bouncer installieren"
+echo "Welche Firewall verwendest du?"
+echo "1) UFW"
+echo "2) iptables"
+echo "3) nftables"
+read -p "Bitte wähle die Nummer deiner Firewall (1-3): " firewall_choice
+
+case $firewall_choice in
+  1)
+    echo "UFW erkannt. Installiere crowdsec-firewall-bouncer-iptables..."
+    sudo apt install -y crowdsec-firewall-bouncer-iptables
+    ;;
+  2)
+    echo "iptables erkannt. Installiere crowdsec-firewall-bouncer-iptables..."
+    sudo apt install -y crowdsec-firewall-bouncer-iptables
+    ;;
+  3)
+    echo "nftables erkannt. Installiere crowdsec-firewall-bouncer-nftables..."
+    sudo apt install -y crowdsec-firewall-bouncer-nftables
+    ;;
+  *)
+    echo -e "${red}Ungültige Auswahl. Das Skript wird abgebrochen.${nc}"
+    exit 1
+    ;;
+esac
+step_done "Firewall-Bouncer installiert"
+((current_step++))
+
+# Dashboard-Benutzer erstellen
+show_step $current_step $total_steps "Erstelle Benutzer für Traefik-Dashboard"
+read -p "Bitte gib den gewünschten Benutzernamen für das Dashboard ein: " dashboard_user
 htpasswd_file="/opt/containers/traefik-crowdsec-stack/data/traefik/.htpasswd"
 sudo htpasswd -c "$htpasswd_file" "$dashboard_user"
-check_success "Dashboard Benutzer und Passwort setzen"
+step_done "Dashboard-Benutzer erstellt"
+((current_step++))
 
-# Letzter Schritt: Finaler Check und Erinnerung an den Benutzer
-CURRENT_STEP=$((CURRENT_STEP + 1))
-print_step $CURRENT_STEP "Finaler Check: Firewall und Domain überprüfen"
-echo -e "\e[1;33mBevor du den Stack startest, stelle bitte sicher, dass:\e[0m"
-echo -e "\e[1;33m1. Die Firewall die Ports 80 und 443 freigibt.\e[0m"
-echo -e "\e[1;33m2. Deine Domain korrekt auf die IP-Adresse des Servers zeigt.\e[0m"
-
+# Letzter Hinweis und Stack starten
+show_step $current_step $total_steps "Finale Überprüfung der Firewall und Domain"
 read -p "Hast du die Ports und die Domain überprüft und sind sie korrekt? [y/n]: " confirmation
 
 if [[ "$confirmation" =~ ^[Yy]$ ]]; then
-  echo -e "\e[1;32mStarte den Stack...\e[0m"
+  echo "Starte den Stack..."
   docker compose up -d
-  echo -e "\e[1;32mDer Stack wurde gestartet.\e[0m"
+  step_done "Stack gestartet"
 else
-  echo -e "\e[1;31mBitte überprüfe die Firewall und die Domain-Einstellungen, bevor du den Stack startest.\e[0m"
+  echo -e "${red}Bitte überprüfe die Firewall und die Domain-Einstellungen, bevor du den Stack startest.${nc}"
 fi

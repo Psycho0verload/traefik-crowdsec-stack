@@ -1,5 +1,3 @@
-Hier ist die aktualisierte Schritt-für-Schritt-Anleitung, die mit dem Clonen des Repositories beginnt:
-
 # Traefik-CrowdSec-Stacks
 
 Diese Anleitung beschreibt die manuelle Installation und Konfiguration des Traefik-CrowdSec-Stacks, ohne Verwendung des automatischen Installationsskripts. Bitte folgen Sie den Schritten sorgfältig.
@@ -10,7 +8,22 @@ Diese Anleitung beschreibt die manuelle Installation und Konfiguration des Traef
 - Docker und Docker Compose müssen installiert sein
 - Apache2 Utils (htpasswd) und OpenSSL müssen installiert sein
 
-## 1. Repository klonen
+## Script
+
+### 1. Repository klonen
+
+Als erstes müssen Sie das Repository auf Ihren Server klonen:
+
+```bash
+mkdir -p /opt/containers/
+git clone https://github.com/psycho0verload/traefik-crowdsec-stack /opt/containers/traefik-crowdsec-stack
+cd /opt/containers/traefik-crowdsec-stack
+sudo chmod +x first_install.sh
+sudo ./first_install.sh
+```
+
+## Anleitung
+### 1. Repository klonen
 
 Als erstes müssen Sie das Repository auf Ihren Server klonen:
 
@@ -20,7 +33,7 @@ git clone https://github.com/psycho0verload/traefik-crowdsec-stack /opt/containe
 cd /opt/containers/traefik-crowdsec-stack
 ```
 
-## 2. Docker und Docker Compose installieren
+### 2. Docker und Docker Compose installieren
 
 Falls Docker und Docker Compose noch nicht installiert sind, folgen Sie der offiziellen Anleitung:
 
@@ -34,7 +47,7 @@ docker --version
 docker compose version
 ```
 
-## 3. Apache2 Utils und OpenSSL installieren
+### 3. Apache2 Utils und OpenSSL installieren
 
 Um einen Benutzer für die HTTP-Basic-Authentifizierung zu erstellen, benötigen Sie htpasswd, das in apache2-utils enthalten ist. Sie können es mit folgendem Befehl installieren:
 
@@ -43,7 +56,7 @@ sudo apt update
 sudo apt install -y apache2-utils openssl
 ```
 
-## 4. Konfigurationsdateien kopieren
+### 4. Konfigurationsdateien kopieren
 
 Kopieren Sie die erforderlichen Konfigurationsdateien aus den .sample-Vorlagen. Stellen Sie sicher, dass Sie im Arbeitsverzeichnis des Projekts sind:
 
@@ -62,7 +75,7 @@ cp data/traefik/dynamic_conf/tls.yml.sample data/traefik/dynamic_conf/tls.yml
 cp data/traefik-crowdsec-bouncer/.env.sample data/traefik-crowdsec-bouncer/.env
 ```
 
-## 5. SSL-Zertifikate und Domain konfigurieren
+### 5. SSL-Zertifikate und Domain konfigurieren
 
 Fügen Sie Ihre SSL-Zertifikats-E-Mail-Adresse und die gewünschte Domain für das Traefik-Dashboard in die entsprechenden Konfigurationsdateien ein:
 
@@ -88,7 +101,7 @@ Fügen Sie Ihre SSL-Zertifikats-E-Mail-Adresse und die gewünschte Domain für d
     SERVICES_TRAEFIK_LABELS_TRAEFIK_HOST=HOST(`traefik.yourdomain.com`)
     ```
 
-## 6. CrowdSec konfigurieren
+### 6. CrowdSec konfigurieren
 1. CrowdSec Konfigurationsdatein erstellen
     ```bash
     cd /opt/containers/traefik-crowdsec-stack/
@@ -120,7 +133,7 @@ Fügen Sie Ihre SSL-Zertifikats-E-Mail-Adresse und die gewünschte Domain für d
     ```
 4. Speichern Sie sich den Token für BOUNCER_KEY_FIREWALL! Diesen benötigen Sie später nochmal!
 
-## 7. Benutzer und Passwort für das Dashboard erstellen
+### 7. Benutzer und Passwort für das Dashboard erstellen
 
 Erstellen Sie einen Benutzer und ein Passwort für die HTTP-Basic-Authentifizierung im Traefik-Dashboard:
 
@@ -128,7 +141,7 @@ Erstellen Sie einen Benutzer und ein Passwort für die HTTP-Basic-Authentifizier
 htpasswd -c /opt/containers/traefik-crowdsec-stack/data/traefik/.htpasswd <deinBenutzername>
 ```
 
-## 8. Firewall Bouncer
+### 8. Firewall Bouncer
 1. Installieren Sie die Repositories von CrowdSec
     ```bash
     curl -s https://install.crowdsec.net | sudo sh
@@ -149,18 +162,18 @@ htpasswd -c /opt/containers/traefik-crowdsec-stack/data/traefik/.htpasswd <deinB
     api_url: http://172.31.127.254:8080/
     api_key: <BOUNCER_KEY_FIREWALL>
     ```
-Der BOUNCER_KEY_FIREWALL sollte der Wert sein, den Sie generiert haben (in Schritt 6.3.).
+Der `BOUNCER_KEY_FIREWALL` sollte der Wert sein, den Sie generiert haben (in Schritt 6.3.).
 
 
-## 9. Firewall-Ports überprüfen
+### 9. Firewall-Ports überprüfen
 
 Stellen Sie sicher, dass die Firewall die Ports 80 (HTTP) und 443 (HTTPS) freigibt.
 
-## 10. Domain überprüfen
+### 10. Domain überprüfen
 
 Vergewissern Sie sich, dass die von Ihnen gewählte Domain korrekt auf die IP-Adresse des Servers verweist.
 
-## 11. Stack starten
+### 11. Stack starten
 
 Sobald alle Konfigurationen abgeschlossen sind, können Sie den Stack starten:
 
@@ -168,7 +181,7 @@ Sobald alle Konfigurationen abgeschlossen sind, können Sie den Stack starten:
 docker compose up -d
 ```
 
-## 12. Zugriff auf das Traefik-Dashboard
+### 12. Zugriff auf das Traefik-Dashboard
 
 Das Traefik-Dashboard sollte nun über die von Ihnen konfigurierte Domain erreichbar sein. Sie werden zur Eingabe des HTTP-Basic-Auth-Benutzernamens und Passworts aufgefordert.
 
