@@ -117,7 +117,11 @@ for file_pair in "${files_to_copy[@]}"; do
     exit 1
   fi
 done
-step_done "Dateien kopiert"
+
+sudo chmod 600 data/traefik/certs/acme_letsencrypt.json
+sudo chmod 600 data/traefik/certs/tls_letsencrypt.json
+
+step_done "Dateien kopiert und Rechte gesetzt"
 ((current_step++))
 
 # Benutzerabfrage mit y/n und Standardwert 'n' für das CrowdSec-Repository
