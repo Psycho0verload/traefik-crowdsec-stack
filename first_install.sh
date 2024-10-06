@@ -220,20 +220,38 @@ if [ ! -f "$env_file" ]; then
   exit 1
 fi
 
+# Funktion zur Validierung der Domain ohne http/https und ohne Slash
+validate_domain() {
+  local domain_regex="^([a-zA-Z0-9][-a-zA-Z0-9]*\.)+[a-zA-Z]{2,}$"
+  if [[ $1 =~ $domain_regex ]]; then
+    return 0  # Gültige Domain
+  else
+    return 1  # Ungültige Domain
+  fi
+}
+
 # Benutzer nach der Wunsch-Domain fragen
 while true; do
-  read -p "Bitte gib die Wunsch-Domain für dein Traefik-Dashboard ein: " dashboard_domain
+  read -p "Bitte gib die Wunsch-Domain für dein Traefik-Dashboard ein (ohne http/https und ohne '/'): " dashboard_domain
 
-  # Bestätigung der Domain mit y/n (Standard: y)
-  read -p "Möchtest du diese Domain verwenden? ($dashboard_domain) [y/n, Standard: y]: " confirm_domain
-  confirm_domain=${confirm_domain:-y}  # Standardwert auf 'y' setzen
-  confirm_domain=$(echo "$confirm_domain" | tr '[:upper:]' '[:lower:]')  # In Kleinbuchstaben umwandeln
+  # Entferne mögliche "http://", "https://", und Slashes am Anfang und Ende
+  dashboard_domain=$(echo "$dashboard_domain" | sed -e 's|^http[s]\?://||' -e 's|/$||')
 
-  if [ "$confirm_domain" == "y" ]; then
-    echo "Domain wurde bestätigt: $dashboard_domain"
-    break
+  # Überprüfen, ob das Format der Domain korrekt ist
+  if validate_domain "$dashboard_domain"; then
+    # Bestätigung der Domain mit y/n (Standard: y)
+    read -p "Möchtest du diese Domain verwenden? ($dashboard_domain) [y/n, Standard: y]: " confirm_domain
+    confirm_domain=${confirm_domain:-y}  # Standardwert auf 'y' setzen
+    confirm_domain=$(echo "$confirm_domain" | tr '[:upper:]' '[:lower:]')  # In Kleinbuchstaben umwandeln
+
+    if [ "$confirm_domain" == "y" ]; then
+      echo "Domain wurde bestätigt: $dashboard_domain"
+      break
+    else
+      echo -e "\e[31mDomain wurde nicht bestätigt. Bitte gib eine neue Domain ein.\e[0m"
+    fi
   else
-    echo -e "\e[31mDomain wurde nicht bestätigt. Bitte gib eine neue Domain ein.\e[0m"
+    echo -e "\e[31mUngültiges Domain-Format. Bitte versuche es erneut.\e[0m"
   fi
 done
 
@@ -327,7 +345,8 @@ step_done "Dashboard-Benutzer erstellt"
 
 # Letzter Hinweis und Stack starten
 show_step $current_step $total_steps "Finale Überprüfung der Firewall und Domain"
-read -p "Hast du die Ports und die Domain überprüft und sind sie korrekt? [y/n]: " confirmation
+read -p "Hast du die Ports und die Domain überprüft und sind sie korrekt? [y/n, Standard: n]: " confirmation
+confirmation=${confirmation:-n}  # Setzt Standardwert auf 'n', wenn keine Eingabe erfolgt
 
 if [[ "$confirmation" =~ ^[Yy]$ ]]; then
   echo "Starte den Stack..."
