@@ -1,0 +1,22 @@
+services:
+  socket-proxy:
+    container_name: ${SERVICES_SOCKET_PROXY_CONTAINER_NAME:-socket-proxy}
+    env_file: ${ABSOLUTE_PATH}/data/socket-proxy/.env
+    hostname: ${SERVICES_SOCKET_PROXY_HOSTNAME:-socket-proxy}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:2375 | grep -q '403' || exit 1"]
+      timeout: 1s
+      interval: 10s
+      retries: 3
+      start_period: 10s
+    image: ${SERVICES_SOCKET_PROXY_IMAGE:-lscr.io/linuxserver/socket-proxy}:${SERVICES_SOCKET_PROXY_IMAGE_VERSION:-latest}
+    networks:
+      socket_proxy:
+        ipv4_address: ${SERVICES_SOCKET_PROXY_NETWORKS_SOCKET_PROXY_IPV4:-172.31.255.254}
+        ipv6_address: ${SERVICES_SOCKET_PROXY_NETWORKS_SOCKET_PROXY_IPV6:-fd00:1:be:a:7001:0:3e:8fff}
+    read_only: true
+    restart: unless-stopped
+    tmpfs:
+      - /run
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro

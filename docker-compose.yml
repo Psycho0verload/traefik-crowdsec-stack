@@ -1,0 +1,6 @@
+include:
+  - compose/crowdsec.yml
+  - compose/socket-proxy.yml
+  - compose/traefik-crowdsec-bouncer.yml
+  - compose/traefik.yml
+  - compose/networks.yml

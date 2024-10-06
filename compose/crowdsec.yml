@@ -1,0 +1,24 @@
+services:
+  crowdsec:
+    container_name: ${SERVICES_CROWDSEC_CONTAINER_NAME:-crowdsec}
+    env_file: ${ABSOLUTE_PATH}/data/crowdsec/.env
+    hostname: ${SERVICES_CROWDSEC_HOSTNAME:-crowdsec}
+    healthcheck:
+      test: ["CMD", "cscli", "version"]
+      timeout: 2s
+      interval: 20s
+      retries: 5
+      start_period: 10s
+    image: ${SERVICES_CROWDSEC_IMAGE:-crowdsecurity/crowdsec}:${SERVICES_CROWDSEC_IMAGE_VERSION:-latest}
+    networks:
+      crowdsec:
+        ipv4_address: ${SERVICES_CROWDSEC_NETWORKS_CROWDSEC_IPV4:-172.31.127.254}
+        ipv6_address: ${SERVICES_CROWDSEC_NETWORKS_CROWDSEC_IPV6:-fd00:1:be:a:7001:0:3e:6fff}
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges=true
+    volumes:
+      - ${ABSOLUTE_PATH}/data/crowdsec/config:/etc/crowdsec
+      - ${ABSOLUTE_PATH}/data/crowdsec/data:/var/lib/crowdsec/data
+      - /var/log/auth.log:/var/log/auth.log:ro
+      - /var/log/traefik:/var/log/traefik:ro

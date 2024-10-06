@@ -1,0 +1,14 @@
+services:
+  traefik_crowdsec_bouncer:
+    container_name: ${SERVICES_TRAEFIK_CROWDSEC_BOUNCER_CONTAINER_NAME:-traefik_crowdsec_bouncer}
+    depends_on:
+      crowdsec:
+        condition: service_healthy
+    env_file: ${ABSOLUTE_PATH}/data/traefik-crowdsec-bouncer/.env
+    hostname: ${SERVICES_TRAEFIK_CROWDSEC_BOUNCER_HOSTNAME:-traefik-crowdsec-bouncer}
+    image: ${SERVICES_TRAEFIK_CROWDSEC_BOUNCER_IMAGE:-fbonalair/traefik-crowdsec-bouncer}:${SERVICES_TRAEFIK_CROWDSEC_BOUNCER_IMAGE_VERSION:-latest}
+    networks:
+      crowdsec:
+        ipv4_address: ${SERVICES_TRAEFIK_CROWDSEC_BOUNCER_NETWORKS_CROWDSEC_IPV4:-172.31.127.252}
+        ipv6_address: ${SERVICES_TRAEFIK_CROWDSEC_BOUNCER_NETWORKS_CROWDSEC_IPV6:-fd00:1:be:a:7001:0:3e:6ffd}
+    restart: unless-stopped
