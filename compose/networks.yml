@@ -1,0 +1,32 @@
+networks:
+  crowdsec:
+    name: ${NETWORKS_CROWDSEC_NAME:-crowdsec}
+    driver: bridge
+    enable_ipv6: true
+    ipam:
+      driver: default
+      config:
+      - subnet: ${NETWORKS_CROWDSEC_SUBNET_IPV4:-172.31.64.0/18}
+      - subnet: ${NETWORKS_CROWDSEC_SUBNET_IPV6:-fd00:1:be:a:7001:0:3e:6000/116}
+    attachable: true
+  proxy:
+    name: ${NETWORKS_PROXY_NAME:-proxy}
+    driver: bridge
+    enable_ipv6: true
+    ipam:
+      driver: default
+      config:
+      - subnet: ${NETWORKS_PROXY_SUBNET_IPV4:-172.31.128.0/18}
+      - subnet: ${NETWORKS_PROXY_SUBNET_IPV6:-fd00:1:be:a:7001:0:3e:7000/116}
+    attachable: true
+  socket_proxy:
+    name: ${NETWORKS_SOCKET_PROXY_NAME:-socket_proxy}
+    driver: bridge
+    enable_ipv6: true
+    ipam:
+      driver: default
+      config:
+      - subnet: ${NETWORKS_SOCKET_PROXY_SUBNET_IPV4:-172.31.192.0/18}
+      - subnet: ${NETWORKS_SOCKET_PROXY_SUBNET_IPV6:-fd00:1:be:a:7001:0:3e:8000/116}
+    attachable: true
+    internal: true
