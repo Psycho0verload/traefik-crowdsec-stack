@@ -9,7 +9,11 @@ Diese Anleitung beschreibt die manuelle Installation und Konfiguration des Traef
 - Apache2 Utils (htpasswd) und OpenSSL müssen installiert sein
 
 ## Script
-
+![Ubuntu 20.04 - Testing](https://img.shields.io/badge/Ubuntu_20.04-07--10--2024-orange?logo=ubuntu)
+![Ubuntu 22.04 - Testing](https://img.shields.io/badge/Ubuntu_22.04-07--10--2024-orange?logo=ubuntu)
+![Ubuntu 24.04 - Testing](https://img.shields.io/badge/Ubuntu_24.04-07--10--2024-orange?logo=ubuntu)
+![Debian 11 - Testing](https://img.shields.io/badge/Debian_11_(Bullseye)-07--10--2024-A81D33?logo=debian&logoColor=white)
+![Debian 12 - Testing](https://img.shields.io/badge/Debian_12_(Bookworm)-07--10--2024-A81D33?logo=debian&logoColor=white)
 ### 1. Repository klonen
 
 Als erstes müssen Sie das Repository auf Ihren Server klonen:
@@ -22,12 +26,19 @@ sudo chmod +x first_install.sh
 sudo ./first_install.sh
 ```
 
-## Anleitung
-### 1. Repository klonen
+## Manuelle Anleitung
+![Ubuntu 20.04 - Testing](https://img.shields.io/badge/Ubuntu_20.04-07--10--2024-orange?logo=ubuntu)
+![Ubuntu 22.04 - Testing](https://img.shields.io/badge/Ubuntu_22.04-07--10--2024-orange?logo=ubuntu)
+![Ubuntu 24.04 - Testing](https://img.shields.io/badge/Ubuntu_24.04-07--10--2024-orange?logo=ubuntu)
+![Debian 11 - Testing](https://img.shields.io/badge/Debian_11_(Bullseye)-07--10--2024-A81D33?logo=debian&logoColor=white)
+![Debian 12 - Testing](https://img.shields.io/badge/Debian_12_(Bookworm)-07--10--2024-A81D33?logo=debian&logoColor=white)
 
+Die gesamte Anleitung wird als `root`-User durchgeführt!
+### 1. Repository klonen
 Als erstes müssen Sie das Repository auf Ihren Server klonen:
 
 ```bash
+sudo su
 mkdir -p /opt/containers/
 git clone https://github.com/psycho0verload/traefik-crowdsec-stack /opt/containers/traefik-crowdsec-stack
 cd /opt/containers/traefik-crowdsec-stack
@@ -52,8 +63,8 @@ docker compose version
 Um einen Benutzer für die HTTP-Basic-Authentifizierung zu erstellen, benötigen Sie htpasswd, das in apache2-utils enthalten ist. Sie können es mit folgendem Befehl installieren:
 
 ```bash
-sudo apt update
-sudo apt install -y apache2-utils openssl
+apt update
+apt install -y apache2-utils openssl
 ```
 
 ### 4. Konfigurationsdateien kopieren
@@ -67,7 +78,9 @@ cp data/socket-proxy/.env.sample data/socket-proxy/.env
 cp data/traefik/.env.sample data/traefik/.env
 cp data/traefik/traefik.yml.sample data/traefik/traefik.yml
 cp data/traefik/certs/acme_letsencrypt.json.sample data/traefik/certs/acme_letsencrypt.json
+chmod 600 data/traefik/certs/acme_letsencrypt.json
 cp data/traefik/certs/tls_letsencrypt.json.sample data/traefik/certs/tls_letsencrypt.json
+chmod 600 data/traefik/certs/tls_letsencrypt.json
 cp data/traefik/dynamic_conf/http.middlewares.default.yml.sample data/traefik/dynamic_conf/http.middlewares.default.yml
 cp data/traefik/dynamic_conf/http.middlewares.traefik-bouncer.yml.sample data/traefik/dynamic_conf/http.middlewares.traefik-bouncer.yml
 cp data/traefik/dynamic_conf/http.middlewares.traefik-dashboard-auth.yml.sample data/traefik/dynamic_conf/http.middlewares.traefik-dashboard-auth.yml
@@ -163,6 +176,12 @@ htpasswd -c /opt/containers/traefik-crowdsec-stack/data/traefik/.htpasswd <deinB
     api_key: <BOUNCER_KEY_FIREWALL>
     ```
 Der `BOUNCER_KEY_FIREWALL` sollte der Wert sein, den Sie generiert haben (in Schritt 6.3.).
+
+4. Firewall neustarten
+    ```
+    systemctl enable crowdsec-firewall-bouncer
+    systemctl restart crowdsec-firewall-bouncer
+    ```
 
 
 ### 9. Firewall-Ports überprüfen

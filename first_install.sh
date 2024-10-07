@@ -332,6 +332,8 @@ fi
 # Setze die api_url und den api_key in der crowdsec-firewall-bouncer.yaml
 sudo sed -i "s#api_url: .*#api_url: http://172.31.127.254:8080/#g" "$firewall_bouncer_config"
 sudo sed -i "s#api_key: .*#api_key: $BOUNCER_KEY_FIREWALL_PASSWORD#g" "$firewall_bouncer_config"
+sudo systemctl enable crowdsec-firewall-bouncer
+sudo systemctl restart crowdsec-firewall-bouncer
 step_done "Firewall-Bouncer angepasst"
 ((current_step++))
 
