@@ -14,6 +14,9 @@ services:
       crowdsec:
         ipv4_address: ${SERVICES_CROWDSEC_NETWORKS_CROWDSEC_IPV4:-172.31.127.254}
         ipv6_address: ${SERVICES_CROWDSEC_NETWORKS_CROWDSEC_IPV6:-fd00:1:be:a:7001:0:3e:6fff}
+      socket_proxy:
+        ipv4_address: ${SERVICES_TRAEFIK_NETWORKS_SOCKET_PROXY_IPV4:-172.31.255.252}
+        ipv6_address: ${SERVICES_TRAEFIK_NETWORKS_SOCKET_PROXY_IPV6:-fd00:1:be:a:7001:0:3e:8ffd}
     restart: unless-stopped
     security_opt:
       - no-new-privileges=true
