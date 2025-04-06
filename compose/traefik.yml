@@ -17,14 +17,14 @@ services:
     image: ${SERVICES_TRAEFIK_IMAGE:-traefik}:${SERVICES_TRAEFIK_IMAGE_VERSION:-3.1}
     labels:
       traefik.enable: "true"
-      traefik.http.routers.traefik-dashboad.entrypoints: websecure
-      traefik.http.routers.traefik-dashboad.middlewares: default@file, traefik-dashboard-auth@file
-      traefik.http.routers.traefik-dashboad.rule: ${SERVICES_TRAEFIK_LABELS_TRAEFIK_HOST:-HOST(`traefik.yourdomain.com`)}
-      traefik.http.routers.traefik-dashboad.service: api@internal
-      traefik.http.routers.traefik-dashboad.tls: "true"
-      traefik.http.routers.traefik-dashboad.tls.certresolver: tls_resolver
-      traefik.http.services.traefik-dashboad.loadbalancer.sticky.cookie.httpOnly: "true"
-      traefik.http.services.traefik-dashboad.loadbalancer.sticky.cookie.secure: "true"
+      traefik.http.routers.traefik-dashboard.entrypoints: websecure
+      traefik.http.routers.traefik-dashboard.middlewares: default@file, traefik-dashboard-auth@file
+      traefik.http.routers.traefik-dashboard.rule: ${SERVICES_TRAEFIK_LABELS_TRAEFIK_HOST:-HOST(`traefik.yourdomain.com`)}
+      traefik.http.routers.traefik-dashboard.service: api@internal
+      traefik.http.routers.traefik-dashboard.tls: "true"
+      traefik.http.routers.traefik-dashboard.tls.certresolver: tls_resolver
+      traefik.http.services.traefik-dashboard.loadbalancer.sticky.cookie.httpOnly: "true"
+      traefik.http.services.traefik-dashboard.loadbalancer.sticky.cookie.secure: "true"
       traefik.http.routers.pingweb.rule: PathPrefix(`/ping`)
       traefik.http.routers.pingweb.service: ping@internal
       traefik.http.routers.pingweb.entrypoints: websecure
