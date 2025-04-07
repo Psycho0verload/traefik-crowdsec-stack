@@ -14,7 +14,7 @@ services:
       interval: 10s
       retries: 3
       start_period: 10s
-    image: ${SERVICES_TRAEFIK_IMAGE:-traefik}:${SERVICES_TRAEFIK_IMAGE_VERSION:-3.1}
+    image: ${SERVICES_TRAEFIK_IMAGE:-traefik}:${SERVICES_TRAEFIK_IMAGE_VERSION:-3.3}
     labels:
       traefik.enable: "true"
       traefik.http.routers.traefik-dashboard.entrypoints: websecure
@@ -54,7 +54,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ${ABSOLUTE_PATH}/data/traefik/traefik.yml:/etc/traefik/traefik.yml
       - ${ABSOLUTE_PATH}/data/traefik/.htpasswd:/etc/traefik/.htpasswd
-      - ${ABSOLUTE_PATH}/data/traefik/certs/acme_letsencrypt.json:/etc/traefik//acme_letsencrypt.json
+      - ${ABSOLUTE_PATH}/data/traefik/certs/acme_letsencrypt.json:/etc/traefik/acme_letsencrypt.json
       - ${ABSOLUTE_PATH}/data/traefik/certs/tls_letsencrypt.json:/etc/traefik/tls_letsencrypt.json
       - ${ABSOLUTE_PATH}/data/traefik/dynamic_conf:/etc/traefik/dynamic_conf:ro
       - /var/log/traefik/:/var/log/traefik/
