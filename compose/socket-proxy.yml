@@ -4,7 +4,7 @@ services:
     env_file: ${ABSOLUTE_PATH}/data/socket-proxy/.env
     hostname: ${SERVICES_SOCKET_PROXY_HOSTNAME:-socket-proxy}
     healthcheck:
-	    test: ["CMD-SHELL", "wget -qO- --server-response http://localhost:2375 2>&1 | grep -q '403 Forbidden' || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- --server-response http://localhost:2375 2>&1 | grep -q '403 Forbidden' || exit 1"]
       timeout: 4s
       interval: 20s
       retries: 3
