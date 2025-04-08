@@ -18,7 +18,7 @@ services:
     labels:
       traefik.enable: "true"
       traefik.http.routers.traefik-dashboard.entrypoints: websecure
-      traefik.http.routers.traefik-dashboard.middlewares: default@file, traefik-dashboard-auth@file
+      traefik.http.routers.traefik-dashboard.middlewares: traefik-dashboard-auth@file
       traefik.http.routers.traefik-dashboard.rule: ${SERVICES_TRAEFIK_LABELS_TRAEFIK_HOST:-HOST(`traefik.yourdomain.com`)}
       traefik.http.routers.traefik-dashboard.service: api@internal
       traefik.http.routers.traefik-dashboard.tls: "true"
