@@ -6,7 +6,7 @@ services:
         condition: service_healthy
     env_file: ${ABSOLUTE_PATH}/data/traefik-crowdsec-bouncer/.env
     hostname: ${SERVICES_TRAEFIK_CROWDSEC_BOUNCER_HOSTNAME:-traefik-crowdsec-bouncer}
-    image: ${SERVICES_TRAEFIK_CROWDSEC_BOUNCER_IMAGE:-fbonalair/traefik-crowdsec-bouncer}:${SERVICES_TRAEFIK_CROWDSEC_BOUNCER_IMAGE_VERSION:-latest}
+    image: ${SERVICES_TRAEFIK_CROWDSEC_BOUNCER_IMAGE:-ghcr.io/freifunkmuc/traefik-crowdsec-bouncer}:${SERVICES_TRAEFIK_CROWDSEC_BOUNCER_IMAGE_VERSION:-latest}
     networks:
       crowdsec:
         ipv4_address: ${SERVICES_TRAEFIK_CROWDSEC_BOUNCER_NETWORKS_CROWDSEC_IPV4:-172.31.127.252}
