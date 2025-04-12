@@ -82,6 +82,8 @@ chmod 600 data/traefik/certs/acme_letsencrypt.json
 cp data/traefik/certs/tls_letsencrypt.json.sample data/traefik/certs/tls_letsencrypt.json
 chmod 600 data/traefik/certs/tls_letsencrypt.json
 cp data/traefik/dynamic_conf/http.middlewares.default.yml.sample data/traefik/dynamic_conf/http.middlewares.default.yml
+cp data/traefik/dynamic_conf/http.middlewares.default-security-headers.yml.sample data/traefik/dynamic_conf/http.middlewares.default-security-headers.yml
+cp data/traefik/dynamic_conf/http.middlewares.http.middlewares.gzip.yml.sample data/traefik/dynamic_conf/http.middlewares.gzip.yml
 cp data/traefik/dynamic_conf/http.middlewares.traefik-bouncer.yml.sample data/traefik/dynamic_conf/http.middlewares.traefik-bouncer.yml
 cp data/traefik/dynamic_conf/http.middlewares.traefik-dashboard-auth.yml.sample data/traefik/dynamic_conf/http.middlewares.traefik-dashboard-auth.yml
 cp data/traefik/dynamic_conf/tls.yml.sample data/traefik/dynamic_conf/tls.yml

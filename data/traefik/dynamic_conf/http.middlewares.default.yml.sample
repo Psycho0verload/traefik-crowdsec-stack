@@ -5,15 +5,3 @@ http:
         middlewares:
           - default-security-headers
           - gzip
-    default-security-headers:
-      headers:
-        browserXssFilter: true
-        contentTypeNosniff: true
-        forceSTSHeader: true
-        frameDeny: true
-        stsIncludeSubdomains: true
-        stsPreload: true
-        stsSeconds: 31536000
-        customFrameOptionsValue: "SAMEORIGIN"
-    gzip:
-      compress: {}
